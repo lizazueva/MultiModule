@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MultiModule"
 include(":app")
- 
+include(":domain")
