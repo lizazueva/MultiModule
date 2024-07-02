@@ -22,12 +22,17 @@ class MainViewModel @Inject constructor(
     val artworks: LiveData<ArtworksEntity?>
         get() = _artworks
 
-    fun getArtworks() {
+    fun getArtworks(limit: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val resource = getArtWorks(2)
+                val resource = getArtWorks(limit)
                 when (resource) {
-                    is Resource.Success -> _artworks.postValue(resource.data)
+                    is Resource.Success -> {
+                        resource.data?.let {
+                            _artworks.postValue(it)
+                        } ?: Log.e("MainViewModel", "Error: Received null data")
+                    }
+
                     is Resource.Error -> {
                         Log.e("MainViewModel", "Error fetching artworks: ${resource.message}")
                     }
@@ -38,8 +43,6 @@ class MainViewModel @Inject constructor(
                     ex.message.toString()
                 )
             }
-
         }
     }
-
 }

@@ -1,9 +1,8 @@
 package com.example.multimodule.di
 
 import com.example.data.RepositoryImpl
-import com.example.data.api.RetrofitInstance
+import com.example.data.api.Api
 import com.example.domain.repository.TopRepository
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 object MainModule {
 
     @Provides
-    fun provideRepositoryImpl(retrofitInstance: RetrofitInstance): TopRepository {
-        return RepositoryImpl(retrofitInstance)
+    fun provideRepositoryImpl(api: Api): TopRepository {
+        return RepositoryImpl(api)
     }
 }

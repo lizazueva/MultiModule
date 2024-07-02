@@ -1,9 +1,8 @@
 package com.example.domain.repository
 
 import com.example.domain.models.ArtworksEntity
-import retrofit2.Response
+import com.example.domain.utils.Resource
 
 interface TopRepository {
-
-    suspend fun getArtWorks(limit: Int): Response<ArtworksEntity>
+    suspend fun getArtWorks(limit: Int): Resource<ArtworksEntity>
 }
