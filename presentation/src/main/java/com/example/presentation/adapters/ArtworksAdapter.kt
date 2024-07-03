@@ -30,7 +30,7 @@ class ArtworksAdapter : ListAdapter<Data, ArtworksAdapter.ViewHolder>(differCall
         fun bind(deal: Data) = with(binding) {
             textTitle.text = deal.artist_title
             textDiscr.text = deal.description
-            Glide.with(imageArt).load(deal.thumbnail.lqip).into(imageArt)
+            Glide.with(imageArt).load(deal.thumbnail?.lqip).into(imageArt)
 
             itemView.setOnClickListener {
                 onItemClickListener?.invoke(deal)

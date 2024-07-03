@@ -22,8 +22,9 @@ class ArtFragment : Fragment() {
     private lateinit var adapterArt: ArtworksAdapter
     private val viewModel: MainViewModel by viewModels()
     private var isLastPage = false
-    private var currentPage = 1
+    private var isLoading = false
 
+    private var currentPage = 1
 
 
     override fun onCreateView(
@@ -39,15 +40,22 @@ class ArtFragment : Fragment() {
 
         setUpAdapter()
         setData()
+        setScrollListener()
+
 
     }
 
     private fun setData() {
-        viewModel.artworks.observe(viewLifecycleOwner){
+        viewModel.artworks.observe(viewLifecycleOwner) {
             val newData = it?.data
             if (newData != null) {
-                adapterArt.submitList(newData)
+                if (currentPage == 1) {
+                    adapterArt.submitList(newData)
+                } else {
+                    adapterArt.submitList(adapterArt.currentList + newData)
+                }
                 isLastPage = newData.isEmpty()
+                isLoading = false
             }
 
         }
@@ -58,29 +66,29 @@ class ArtFragment : Fragment() {
         adapterArt = ArtworksAdapter()
         binding.recyclerArtworks.adapter = adapterArt
         binding.recyclerArtworks.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerArtworks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+    }
 
+    private fun setScrollListener() {
+        binding.recyclerArtworks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 val visibleItemCount = layoutManager.childCount
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                if (!isLastPage) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0
-                        && totalItemCount >= PAGE_SIZE
-                    ) {
+                if (!isLoading && !isLastPage) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0) {
                         loadMoreItems()
                     }
                 }
-
             }
         })
     }
 
     private fun loadMoreItems() {
+        isLoading = true
         currentPage++
         viewModel.getArtworks(currentPage)
     }
@@ -88,10 +96,6 @@ class ArtFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        private const val PAGE_SIZE = 10
     }
 
 }

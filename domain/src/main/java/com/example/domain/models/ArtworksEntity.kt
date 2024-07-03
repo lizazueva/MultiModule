@@ -118,7 +118,7 @@ data class Data(
     val term_titles: List<String>,
     val text_ids: List<Any>,
     val theme_titles: List<Any>,
-    val thumbnail: Thumbnail,
+    val thumbnail: Thumbnail?,
     val timestamp: String,
     val title: String,
     val updated_at: String,
