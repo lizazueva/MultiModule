@@ -42,9 +42,6 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
                 }
             }
         }
-        viewModelArt.totalPages.observe(viewLifecycleOwner) { }
-        viewModelArt.isLoading.observe(viewLifecycleOwner) { }
-        viewModelArt.currentPage.observe(viewLifecycleOwner) { }
 
         viewModelArt.getArtworks(1)
     }
