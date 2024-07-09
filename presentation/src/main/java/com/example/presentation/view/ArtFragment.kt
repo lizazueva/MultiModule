@@ -33,13 +33,8 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
 
     private fun observeData() {
         viewModelArt.artworks.observe(viewLifecycleOwner) {
-            val newData = it?.data
-            if (newData != null) {
-                if (viewModelArt.currentPage.value == 1) {
-                    adapterArt.submitList(newData)
-                } else {
-                    adapterArt.submitList(adapterArt.currentList + newData)
-                }
+            if (it != null) {
+                adapterArt.submitList(adapterArt.currentList + it.data)
             }
         }
 
@@ -56,10 +51,8 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
         binding.recyclerArtworks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (!recyclerView.canScrollVertically(1) && viewModelArt.isLoading.value == false &&
-                    (viewModelArt.currentPage.value ?: 1) < (viewModelArt.totalPages.value ?: 1)
-                ) {
-                    viewModelArt.loadMoreItems()
+                if (!recyclerView.canScrollVertically(1)) {
+                    viewModelArt.onEndOfListReached()
                 }
             }
         })

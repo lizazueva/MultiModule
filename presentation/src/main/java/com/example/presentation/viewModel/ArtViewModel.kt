@@ -22,28 +22,20 @@ class ArtViewModel @Inject constructor(
     val artworks: LiveData<ArtworksEntity?>
         get() = _artworks
 
-    private val _totalPages: MutableLiveData<Int> = MutableLiveData()
-    val totalPages: LiveData<Int>
-        get() = _totalPages
-
-    private val _currentPage: MutableLiveData<Int> = MutableLiveData(1)
-    val currentPage: LiveData<Int>
-        get() = _currentPage
-
-    private val _isLoading: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isLoading: LiveData<Boolean>
-        get() = _isLoading
+    private var isLoading = false
+    private var currentPage: Int = 1
+    private var totalPages: Int = 1
 
     fun getArtworks(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _isLoading.postValue(true)
+                isLoading = true
                 val resource = getArtWorks(page)
                 when (resource) {
                     is Resource.Success -> {
                         resource.data?.let {
                             _artworks.postValue(it)
-                            _totalPages.postValue(it.pagination.total_pages)
+                            totalPages = it.pagination.total_pages
                         } ?: Log.e("MainViewModel", "Error: Received null data")
                     }
 
@@ -57,16 +49,15 @@ class ArtViewModel @Inject constructor(
                     ex.message.toString()
                 )
             } finally {
-                _isLoading.postValue(false)
+                isLoading = false
             }
         }
     }
 
-    fun loadMoreItems() {
-        val current = _currentPage.value ?: 1
-        if (current < (_totalPages.value ?: 1) && _isLoading.value == false) {
-            _currentPage.postValue(current + 1)
-            getArtworks(current + 1)
+    fun onEndOfListReached() {
+        if (currentPage < totalPages && !isLoading) {
+            currentPage++
+            getArtworks(currentPage + 1)
         }
     }
 }
