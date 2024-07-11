@@ -2,9 +2,7 @@ package com.example.presentation.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +18,7 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
 
 
     private val binding: FragmentArtBinding by viewBinding(FragmentArtBinding::bind)
-    private lateinit var adapterArt: ArtworksAdapter
+    private var adapterArt: ArtworksAdapter? = null
     private val viewModelArt: ArtViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -32,9 +30,9 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
     }
 
     private fun observeData() {
-        viewModelArt.artworks.observe(viewLifecycleOwner) {
-            if (it != null) {
-                adapterArt.submitList(adapterArt.currentList + it.data)
+        viewModelArt.artworks.observe(viewLifecycleOwner) {artworkEntity ->
+            artworkEntity?.let {
+                adapterArt?.submitList(adapterArt?.currentList?.plus(it.data))
             }
         }
 

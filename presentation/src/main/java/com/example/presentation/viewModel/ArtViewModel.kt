@@ -57,7 +57,7 @@ class ArtViewModel @Inject constructor(
     fun onEndOfListReached() {
         if (currentPage < totalPages && !isLoading) {
             currentPage++
-            getArtworks(currentPage + 1)
+            getArtworks(currentPage)
         }
     }
 }
