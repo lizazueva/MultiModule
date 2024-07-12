@@ -18,7 +18,9 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
 
 
     private val binding: FragmentArtBinding by viewBinding(FragmentArtBinding::bind)
-    private var adapterArt: ArtworksAdapter? = null
+    private val adapterArt: ArtworksAdapter by lazy {
+        ArtworksAdapter()
+    }
     private val viewModelArt: ArtViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -30,9 +32,9 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
     }
 
     private fun observeData() {
-        viewModelArt.artworks.observe(viewLifecycleOwner) {artworkEntity ->
+        viewModelArt.artworks.observe(viewLifecycleOwner) { artworkEntity ->
             artworkEntity?.let {
-                adapterArt?.submitList(adapterArt?.currentList?.plus(it.data))
+                adapterArt.submitList(adapterArt.currentList.plus(it.data))
             }
         }
 
@@ -40,7 +42,6 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
     }
 
     private fun setUpAdapter() {
-        adapterArt = ArtworksAdapter()
         binding.recyclerArtworks.adapter = adapterArt
         binding.recyclerArtworks.layoutManager = LinearLayoutManager(requireContext())
     }
