@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/art_navigation"
+    app:startDestination="@id/artFragment">
+
+    <fragment
+        android:id="@+id/artFragment"
+        android:name="com.example.presentation.view.ArtFragment"
+        android:label="fragment_art"
+        tools:layout="@layout/fragment_art" />
+</navigation>

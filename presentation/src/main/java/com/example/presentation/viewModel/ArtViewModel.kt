@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class ArtViewModel @Inject constructor(
     private val getArtWorks: GetArtWorksUseCase
 ) : ViewModel() {
 
@@ -22,12 +22,23 @@ class MainViewModel @Inject constructor(
     val artworks: LiveData<ArtworksEntity?>
         get() = _artworks
 
-    fun getArtworks() {
+    private var isLoading = false
+    private var currentPage: Int = 1
+    private var totalPages: Int = 1
+
+    fun getArtworks(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val resource = getArtWorks(2)
+                isLoading = true
+                val resource = getArtWorks(page)
                 when (resource) {
-                    is Resource.Success -> _artworks.postValue(resource.data)
+                    is Resource.Success -> {
+                        resource.data?.let {
+                            _artworks.postValue(it)
+                            totalPages = it.pagination.total_pages
+                        } ?: Log.e("MainViewModel", "Error: Received null data")
+                    }
+
                     is Resource.Error -> {
                         Log.e("MainViewModel", "Error fetching artworks: ${resource.message}")
                     }
@@ -37,9 +48,16 @@ class MainViewModel @Inject constructor(
                     ex.toString(),
                     ex.message.toString()
                 )
+            } finally {
+                isLoading = false
             }
-
         }
     }
 
+    fun onEndOfListReached() {
+        if (currentPage < totalPages && !isLoading) {
+            currentPage++
+            getArtworks(currentPage)
+        }
+    }
 }

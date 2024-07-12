@@ -49,7 +49,7 @@ dependencies {
 
     implementation(group= "javax.inject", name= "javax.inject", version = "1")
 
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
+    api("com.squareup.okhttp3:logging-interceptor:4.9.1")
 
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.fragment:fragment-ktx:1.3.6")

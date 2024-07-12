@@ -8,6 +8,6 @@ import retrofit2.http.Query
 interface Api {
 
     @GET("v1/artworks")
-    suspend fun getArtWorks(@Query("query") limit: Int): Response<ArtworksEntity>
+    suspend fun getArtWorks(@Query("page") page: Int): Response<ArtworksEntity>
 
 }
