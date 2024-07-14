@@ -44,18 +44,14 @@ class ArtViewModel @Inject constructor(
                     val secondPageResult = secondPage.await()
 
                     val newArtworks = mutableListOf<Data>()
-                    var combinedPagination: Pagination? = null
-                    var combinedConfig: Config? = null
-                    var combinedInfo: Info? = null
+                    var pagination: Pagination? = null
 
                     when (firstPageResult) {
                         is Resource.Success -> {
                             firstPageResult.data?.let {
                                 newArtworks.addAll(it.data)
                                 totalPages = it.pagination.total_pages
-                                combinedPagination = it.pagination
-                                combinedConfig = it.config
-                                combinedInfo = it.info
+                                pagination = it.pagination
                             } ?: Log.e("MainViewModel", "Error: Received null data")
                         }
 
@@ -72,9 +68,6 @@ class ArtViewModel @Inject constructor(
                             firstPageResult.data?.let {
                                 newArtworks.addAll(it.data)
                                 totalPages = it.pagination.total_pages
-                                combinedPagination = it.pagination
-                                combinedConfig = it.config
-                                combinedInfo = it.info
                             } ?: Log.e("MainViewModel", "Error: Received null data")
                         }
 
@@ -86,18 +79,13 @@ class ArtViewModel @Inject constructor(
                         }
                     }
 
-                    val newArtworksEntity = combinedPagination?.let {pagination ->
-                        combinedInfo?.let { info ->
-                            combinedConfig?.let { config ->
-                                ArtworksEntity(
-                                    config = config,
-                                    data = newArtworks,
-                                    info = info,
-                                    pagination = pagination
-                                )
-                            }
-                        }
+                    val newArtworksEntity = pagination?.let { pagination ->
+                        ArtworksEntity(
+                            data = newArtworks,
+                            pagination = pagination
+                        )
                     }
+
 
                     Log.e(
                         "MainViewModel",
@@ -137,11 +125,12 @@ class ArtViewModel @Inject constructor(
         if (!isLoading) {
             when {
                 currentPage < totalPages - 1 -> {
-                    getArtworks(currentPage, true)
+                    getArtworks(currentPage + 1, true)
                     currentPage += 2
                 }
+
                 currentPage == totalPages - 1 -> {
-                    getArtworks(currentPage)
+                    getArtworks(currentPage + 1)
                     currentPage++
                 }
             }
