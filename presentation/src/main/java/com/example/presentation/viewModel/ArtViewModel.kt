@@ -31,90 +31,91 @@ class ArtViewModel @Inject constructor(
     private var currentPage: Int = 1
     private var totalPages: Int = 1
 
-    fun getArtworks(page: Int, loadTwoPages: Boolean = false) {
+    fun getSinglePageArtworks(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isLoading = true
-                if (loadTwoPages) {
-                    val nextPage = page + 1
-                    val firstPage = async { getArtWorks(page) }
-                    val secondPage = async { getArtWorks(nextPage) }
-
-                    val firstPageResult = firstPage.await()
-                    val secondPageResult = secondPage.await()
-
-                    val newArtworks = mutableListOf<Data>()
-                    var pagination: Pagination? = null
-
-                    when (firstPageResult) {
-                        is Resource.Success -> {
-                            firstPageResult.data?.let {
-                                newArtworks.addAll(it.data)
-                                totalPages = it.pagination.total_pages
-                                pagination = it.pagination
-                            } ?: Log.e("MainViewModel", "Error: Received null data")
-                        }
-
-                        is Resource.Error -> {
-                            Log.e(
-                                "MainViewModel",
-                                "Error fetching artworks: ${firstPageResult.message}"
-                            )
-                        }
+                val resource = getArtWorks(page)
+                when (resource) {
+                    is Resource.Success -> {
+                        resource.data?.let {
+                            _artworks.postValue(it)
+                            totalPages = it.pagination.total_pages
+                        } ?: Log.e("MainViewModel", "Error: Received null data")
                     }
 
-                    when (secondPageResult) {
-                        is Resource.Success -> {
-                            firstPageResult.data?.let {
-                                newArtworks.addAll(it.data)
-                                totalPages = it.pagination.total_pages
-                            } ?: Log.e("MainViewModel", "Error: Received null data")
-                        }
-
-                        is Resource.Error -> {
-                            Log.e(
-                                "MainViewModel",
-                                "Error fetching artworks: ${secondPageResult.message}"
-                            )
-                        }
-                    }
-
-                    val newArtworksEntity = pagination?.let { pagination ->
-                        ArtworksEntity(
-                            data = newArtworks,
-                            pagination = pagination
+                    is Resource.Error -> {
+                        Log.e(
+                            "MainViewModel",
+                            "Error fetching artworks: ${resource.message}"
                         )
-                    }
-
-
-                    Log.e(
-                        "MainViewModel",
-                        "newArtworksEntity: $newArtworksEntity"
-                    )
-
-                    _artworks.postValue(newArtworksEntity)
-
-
-                } else {
-                    val resource = getArtWorks(page)
-                    when (resource) {
-                        is Resource.Success -> {
-                            resource.data?.let {
-                                _artworks.postValue(it)
-                                totalPages = it.pagination.total_pages
-                            } ?: Log.e("MainViewModel", "Error: Received null data")
-                        }
-
-                        is Resource.Error -> {
-                            Log.e("MainViewModel", "Error fetching artworks: ${resource.message}")
-                        }
                     }
                 }
             } catch (ex: Exception) {
-                Log.e(
-                    ex.toString(),
-                    ex.message.toString()
-                )
+                Log.e(ex.toString(), ex.message.toString())
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    private fun getTwoPagesArtworks(page: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                isLoading = true
+                val nextPage = page + 1
+                val firstPage = async { getArtWorks(page) }
+                val secondPage = async { getArtWorks(nextPage) }
+
+                val firstPageResult = firstPage.await()
+                val secondPageResult = secondPage.await()
+
+                val newArtworks = mutableListOf<Data>()
+                var pagination: Pagination? = null
+
+                when (firstPageResult) {
+                    is Resource.Success -> {
+                        firstPageResult.data?.let {
+                            newArtworks.addAll(it.data)
+                            totalPages = it.pagination.total_pages
+                            pagination = it.pagination
+                        } ?: Log.e("MainViewModel", "Error: Received null data")
+                    }
+
+                    is Resource.Error -> {
+                        Log.e(
+                            "MainViewModel",
+                            "Error fetching artworks: ${firstPageResult.message}"
+                        )
+                    }
+                }
+
+                when (secondPageResult) {
+                    is Resource.Success -> {
+                        secondPageResult.data?.let {
+                            newArtworks.addAll(it.data)
+                            totalPages = it.pagination.total_pages
+                            pagination = it.pagination
+                        } ?: Log.e("MainViewModel", "Error: Received null data")
+                    }
+
+                    is Resource.Error -> {
+                        Log.e(
+                            "MainViewModel",
+                            "Error fetching artworks: ${secondPageResult.message}"
+                        )
+                    }
+                }
+
+                val newArtworksEntity = pagination?.let {
+                    ArtworksEntity(data = newArtworks, pagination = it)
+                }
+
+                Log.e("MainViewModel", "newArtworksEntity: $newArtworksEntity")
+
+                _artworks.postValue(newArtworksEntity)
+            } catch (ex: Exception) {
+                Log.e(ex.toString(), ex.message.toString())
             } finally {
                 isLoading = false
             }
@@ -125,13 +126,12 @@ class ArtViewModel @Inject constructor(
         if (!isLoading) {
             when {
                 currentPage < totalPages - 1 -> {
-                    getArtworks(currentPage + 1, true)
+                    getTwoPagesArtworks(currentPage + 1)
                     currentPage += 2
                 }
 
                 currentPage == totalPages - 1 -> {
-                    getArtworks(currentPage + 1)
-                    currentPage++
+                    getSinglePageArtworks(++currentPage)
                 }
             }
         }
