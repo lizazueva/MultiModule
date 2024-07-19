@@ -1,9 +1,7 @@
 package com.example.domain.models
 
 data class ArtworksEntity(
-    val config: Config,
     val data: List<Data>,
-    val info: Info,
     val pagination: Pagination
 )
 

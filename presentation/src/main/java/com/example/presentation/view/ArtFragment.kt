@@ -38,7 +38,7 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
             }
         }
 
-        viewModelArt.getArtworks(1)
+        viewModelArt.getSinglePageArtworks(1)
     }
 
     private fun setUpAdapter() {
