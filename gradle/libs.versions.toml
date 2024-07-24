@@ -11,6 +11,8 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 jetbrainsKotlinJvm = "1.9.0"
 hilt = "2.50"
+navigation = "2.5.3"
+roomCommon = "2.5.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -21,6 +23,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -29,4 +32,5 @@ jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 hilt = {id = "com.google.dagger.hilt.android", version.ref = "hilt"}
+navigation = {id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation"}
 

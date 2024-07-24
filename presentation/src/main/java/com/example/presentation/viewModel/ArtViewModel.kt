@@ -6,30 +6,59 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.models.ArtworksEntity
-import com.example.domain.models.Config
 import com.example.domain.models.Data
-import com.example.domain.models.Info
+import com.example.domain.models.DetailEntity
 import com.example.domain.models.Pagination
 import com.example.domain.usecase.GetArtWorksUseCase
+import com.example.domain.usecase.GetDetailArtworkUseCase
 import com.example.domain.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ArtViewModel @Inject constructor(
-    private val getArtWorks: GetArtWorksUseCase
+    private val getArtWorks: GetArtWorksUseCase,
+    private val getDetailArtworkUseCase: GetDetailArtworkUseCase
 ) : ViewModel() {
 
-    private val _artworks: MutableLiveData<ArtworksEntity?> = MutableLiveData()
-    val artworks: LiveData<ArtworksEntity?>
-        get() = _artworks
+    private val _artworks = MutableStateFlow<Resource<List<Data>>>(Resource.Loading())
+    val artworks: MutableStateFlow<Resource<List<Data>>> = _artworks
+
+    private val _artwork: MutableLiveData<Resource<DetailEntity>> = MutableLiveData()
+    val artwork: LiveData<Resource<DetailEntity>>
+        get() = _artwork
 
     private var isLoading = false
     private var currentPage: Int = 1
     private var totalPages: Int = 1
+
+    init {
+        fetchCachedArtworks()
+    }
+
+    private fun fetchCachedArtworks() {
+        viewModelScope.launch {
+            getArtWorks.getCachedArtWorks().collect { data ->
+                _artworks.value = Resource.Success(data)
+            }
+        }
+    }
+
+    fun getDetailArtwork(id:Int){
+        viewModelScope.launch {
+            try {
+                val resource = getDetailArtworkUseCase(id)
+                _artwork.postValue(resource)
+            } catch (ex: Exception) {
+                _artwork.postValue(Resource.Error(ex.message ?: "Неизвестная ошибка"))
+            }
+        }
+    }
 
     fun getSinglePageArtworks(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -39,7 +68,7 @@ class ArtViewModel @Inject constructor(
                 when (resource) {
                     is Resource.Success -> {
                         resource.data?.let {
-                            _artworks.postValue(it)
+//                            _artworks.value = it
                             totalPages = it.pagination.total_pages
                         } ?: Log.e("MainViewModel", "Error: Received null data")
                     }
@@ -50,6 +79,8 @@ class ArtViewModel @Inject constructor(
                             "Error fetching artworks: ${resource.message}"
                         )
                     }
+
+                    is Resource.Loading -> TODO()
                 }
             } catch (ex: Exception) {
                 Log.e(ex.toString(), ex.message.toString())
@@ -88,6 +119,8 @@ class ArtViewModel @Inject constructor(
                             "Error fetching artworks: ${firstPageResult.message}"
                         )
                     }
+
+                    is Resource.Loading -> TODO()
                 }
 
                 when (secondPageResult) {
@@ -105,6 +138,8 @@ class ArtViewModel @Inject constructor(
                             "Error fetching artworks: ${secondPageResult.message}"
                         )
                     }
+
+                    is Resource.Loading -> TODO()
                 }
 
                 val newArtworksEntity = pagination?.let {
@@ -113,7 +148,7 @@ class ArtViewModel @Inject constructor(
 
                 Log.e("MainViewModel", "newArtworksEntity: $newArtworksEntity")
 
-                _artworks.postValue(newArtworksEntity)
+//                _artworks.postValue(newArtworksEntity)
             } catch (ex: Exception) {
                 Log.e(ex.toString(), ex.message.toString())
             } finally {

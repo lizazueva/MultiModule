@@ -1,12 +1,16 @@
 package com.example.presentation.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.example.domain.utils.Resource
 import com.example.presentation.R
 import com.example.presentation.adapters.ArtworksAdapter
 import com.example.presentation.databinding.FragmentArtBinding
@@ -29,12 +33,32 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
         setUpAdapter()
         observeData()
         setScrollListener()
+        setUpListeners()
+
+    }
+
+    private fun setUpListeners() {
+        adapterArt.onItemClickListener = { data ->
+            val action = ArtFragmentDirections.actionArtFragmentToDetailFragment(data.id)
+            findNavController().navigate(action)
+        }
     }
 
     private fun observeData() {
-        viewModelArt.artworks.observe(viewLifecycleOwner) { artworkEntity ->
-            artworkEntity?.let {
-                adapterArt.submitList(adapterArt.currentList.plus(it.data))
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModelArt.artworks.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                    }
+                    is Resource.Success -> {
+                        resource.data?.let { artworkEntity ->
+                            adapterArt.submitList(adapterArt.currentList.plus(artworkEntity))
+                        }
+                    }
+                    is Resource.Error -> {
+                        Log.e("ArtFragment", "Error: ${resource.message}")
+                    }
+                }
             }
         }
 
