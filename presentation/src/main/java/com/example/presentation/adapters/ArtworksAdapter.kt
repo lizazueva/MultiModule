@@ -34,9 +34,6 @@ class ArtworksAdapter : ListAdapter<Data, ArtworksAdapter.ViewHolder>(differCall
 
             itemView.setOnClickListener {
                 onItemClickListener?.invoke(deal)
-                val context = itemView.context
-                val toastMessage = context.getString(R.string.text_toast, deal.artist_title)
-                Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
             }
         }
     }

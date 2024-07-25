@@ -56,4 +56,14 @@ dependencies {
 
     implementation("androidx.activity:activity-ktx:1.4.0")
     implementation("androidx.fragment:fragment-ktx:1.3.6")
+
+    implementation ("androidx.room:room-runtime:2.5.1")
+    kapt ("androidx.room:room-compiler:2.5.1")
+
+    implementation ("androidx.room:room-ktx:2.5.1")
+    // Database Inspector
+    debugImplementation ("androidx.room:room-runtime:2.4.3")
+    debugImplementation ("androidx.room:room-ktx:2.4.3")
+    debugImplementation ("androidx.sqlite:sqlite-ktx:2.1.0")
+    debugImplementation ("androidx.room:room-testing:2.4.3")
 }
