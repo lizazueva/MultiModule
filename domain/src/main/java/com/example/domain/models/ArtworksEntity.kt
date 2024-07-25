@@ -12,7 +12,7 @@ data class ArtworksEntity(
 )
 @Entity(tableName = "data")
 data class Data(
-    val artist_id: Int,
+    val artist_id: Int?,
     val artist_title: String?,
     val description: String?,
     @PrimaryKey val id: Int,

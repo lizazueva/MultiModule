@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface TopRepository {
-    suspend fun getArtWorks(limit: Int): Resource<ArtworksEntity>
+    suspend fun fetchAndCacheArtWorks(limit: Int): Resource<Boolean>
 
-    suspend fun getDetailArtwork(id: Int): Resource<DetailEntity>
+    fun getDetailArtwork(id: Int): Flow<Data>
 
-    fun getCachedArtWorks(): Flow<List<Data>>
+    fun getCachedArtWorks(): Flow<ArtworksEntity>
 
 
 }

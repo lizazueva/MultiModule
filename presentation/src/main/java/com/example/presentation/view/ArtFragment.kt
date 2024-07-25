@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -52,10 +53,12 @@ class ArtFragment : Fragment(R.layout.fragment_art) {
                     }
                     is Resource.Success -> {
                         resource.data?.let { artworkEntity ->
-                            adapterArt.submitList(adapterArt.currentList.plus(artworkEntity))
+                            adapterArt.submitList(adapterArt.currentList.plus(artworkEntity.data))
                         }
                     }
                     is Resource.Error -> {
+                        Toast.makeText(requireContext(), resource.message, Toast.LENGTH_SHORT).show()
+
                         Log.e("ArtFragment", "Error: ${resource.message}")
                     }
                 }
